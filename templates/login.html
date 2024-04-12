@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block main %}
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form class="myform" method="post" action="/login">
+        <div class="form-group">
+            <div class="form-label">Email</div>
+            <div class="form-element"><input type="email" name="email" id="email" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Password</div>
+            <div class="form-element"><input type="password" name="user_password" id="user_password" required></div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-label">Reset</div>
+            <div class="form-element"><input type="reset" value="Reset" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Submit</div>
+            <div class="form-element"><input type="submit" value="Submit" required></div>
+        </div>
+    </form>
+{% endblock %}
