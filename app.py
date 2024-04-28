@@ -48,7 +48,8 @@ def render_login():
 
     return render_template('login.html')
 
-@app.route('/signup', methods=['POST','GET'])
+
+@app.route('/signup', methods=['POST', 'GET'])
 def render_signup_page():  # signup page
     if request.method == 'POST':  # will be posting information to the table
         email = request.form.get('email')
@@ -57,29 +58,28 @@ def render_signup_page():  # signup page
         firstname = request.form.get('firstname')
         lastname = request.form.get('lastname')  # add to the table
 
-
         if password != verify_password:  # verify passwords
             error_message = "Passwords do not match. Please try again."
             return render_template('signup.html', error=error_message)
 
-
         con = connect_to_database(DICTIONARY_DB)  # connect to database
         cur = con.cursor()
-        cur.execute("INSERT INTO user_info (email, password, fname, lname) VALUES (?, ?, ?, ?)",  # insert info into table
-                    (email, password, firstname, lastname))
+        cur.execute("INSERT INTO user_info (email, password, fname, lname) VALUES (?, ?, ?, ?)",
+                    (email, password, firstname, lastname))   # insert info into table
         con.commit()
         con.close()
-
 
         return redirect('/')
 
     return render_template('signup.html')
+
 
 @app.route('/logout')
 def render_logout():
     session.clear()
 
     return redirect('/login')
+
 
 if __name__ == '__main__':
     app.run()
