@@ -54,9 +54,17 @@ nav {
     float: left;
 }
 
-.navbar-links {
-    display: inline;
-    float: right;
+.navbar-links, .navbar-user {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-links > a {
+    margin-right: 20px;
+}
+
+.navbar-user {
+    margin-left: auto;
 }
 
 nav a {

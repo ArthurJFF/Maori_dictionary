@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"/>
     <link href="{{ url_for('static', filename='smile.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -17,12 +18,14 @@
         <div class="navbar-links">
             <a href="/">Home</a>
             <a href="/menu">Menu</a>
-            <a href="/login">Login</a>
             <a href="/contact">Contact</a>
-            <a href="/signup">Signup</a>
-            <a href="/logout">Logout</a>
-
-
+            {% if 'email' in session %}
+                <div class="navbar-user">Logged in as: {{ session.get('name') }}</div>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signup">Signup</a>
+            {% endif %}
         </div>
     </div>
 </nav>

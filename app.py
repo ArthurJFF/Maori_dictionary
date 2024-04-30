@@ -21,6 +21,8 @@ def render_homepage():
     return render_template('home.html')
 
 
+from flask import redirect, url_for
+
 @app.route('/login', methods=['POST', 'GET'])
 def render_login():
     if 'email' in session:
@@ -42,12 +44,18 @@ def render_login():
         if user:
             session['email'] = email
             session['name'] = user[1]
+            return redirect(url_for('render_homepage'))  # Redirect to homepage after login
         else:
             error_message = "Invalid email or password. Please try again."
             return render_template('login.html', error=error_message)
 
     return render_template('login.html')
 
+
+@app.route('/logout')
+def render_logout():
+    session.clear()
+    return redirect(url_for('render_login'))  # Redirect to login page after logout
 
 @app.route('/signup', methods=['POST', 'GET'])
 def render_signup_page():  # signup page
@@ -74,11 +82,6 @@ def render_signup_page():  # signup page
     return render_template('signup.html')
 
 
-@app.route('/logout')
-def render_logout():
-    session.clear()
-
-    return redirect('/login')
 
 
 if __name__ == '__main__':
