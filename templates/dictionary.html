@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block pageheading %}
+Maori-English Dictionary
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Maori Word</th>
+                <th>English Word</th>
+                <th>Category</th>
+                <th>Definition</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for word in dictionary_data %}
+                <tr>
+                    <td>{{ word[0] }}</td>
+                    <td>{{ word[1] }}</td>
+                    <td>{{ word[2] }}</td>
+                    <td>{{ word[3] }}</td>
+                    <td>{{ word[4] }}</td>
+                    <td>{{ word[5] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

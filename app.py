@@ -81,7 +81,18 @@ def render_signup_page():  # signup page
 
     return render_template('signup.html')
 
+@app.route('/dictionary')
+def render_dictionary():
+    if 'email' not in session:
+        return redirect('/login')  # Redirect to login if user is not logged in
 
+    conn = sqlite3.connect(DICTIONARY_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM me_dictionary")
+    dictionary_data = cursor.fetchall()
+    conn.close()
+
+    return render_template('dictionary.html', dictionary_data=dictionary_data)
 
 
 if __name__ == '__main__':
