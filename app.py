@@ -92,7 +92,11 @@ def render_dictionary():
     dictionary_data = cursor.fetchall()
     conn.close()
 
+
+    print(dictionary_data)
+
     return render_template('dictionary.html', dictionary_data=dictionary_data)
+
 
 
 if __name__ == '__main__':
