@@ -86,14 +86,18 @@ def render_dictionary():
     if 'email' not in session:
         return redirect('/login')  # Redirect to login if user is not logged in
 
+    category = request.args.get('category')  # Get the selected category from the URL
+
     conn = sqlite3.connect(DICTIONARY_DB)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM me_dictionary")
+
+    if category:  # If a category is selected, filter the data based on it
+        cursor.execute("SELECT * FROM me_dictionary WHERE category=?", (category,))
+    else:  # If no category is selected, fetch all data
+        cursor.execute("SELECT * FROM me_dictionary")
+
     dictionary_data = cursor.fetchall()
     conn.close()
-
-
-    print(dictionary_data)
 
     return render_template('dictionary.html', dictionary_data=dictionary_data)
 

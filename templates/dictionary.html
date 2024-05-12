@@ -6,10 +6,34 @@ Maori-English Dictionary
 
 {% block main %}
 <div class="container">
+    <form action="/dictionary" method="GET">
+        <label for="category">Select a category:</label>
+        <select name="category" id="category">
+            <option value="">All</option>
+            <option value="Actions">Actions</option>
+            <option value="Animals">Animals</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Culture / Religion">Culture / Religion</option>
+            <option value="Descriptive">Descriptive</option>
+            <option value="Emotions">Emotions</option>
+            <option value="Food">Food</option>
+            <option value="Math / Number">Math / Number</option>
+            <option value="Outdoors">Outdoors</option>
+            <option value="People">People</option>
+            <option value="Places">Places</option>
+            <option value="Plants">Plants</option>
+            <option value="School">School</option>
+            <option value="Sport">Sport</option>
+            <option value="Technology">Technology</option>
+            <option value="Time">Time</option>
+            <!-- Add more options as needed -->
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Maori Word</th>
                 <th>English Word</th>
                 <th>Category</th>
@@ -20,7 +44,6 @@ Maori-English Dictionary
         <tbody>
             {% for word in dictionary_data %}
                 <tr>
-                    <td>{{ word[0] }}</td>
                     <td>{{ word[1] }}</td>
                     <td>{{ word[2] }}</td>
                     <td>{{ word[3] }}</td>
