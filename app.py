@@ -81,26 +81,35 @@ def render_signup_page():  # signup page
 
     return render_template('signup.html')
 
-@app.route('/dictionary')
+@app.route('/dictionary', methods=['GET'])
 def render_dictionary():
     if 'email' not in session:
         return redirect('/login')  # Redirect to login if user is not logged in
 
-    category = request.args.get('category')  # Get the selected category from the URL
+    category = request.args.get('category', '').lower()
+    level_from = request.args.get('level_from')
+    level_to = request.args.get('level_to')
 
     conn = sqlite3.connect(DICTIONARY_DB)
     cursor = conn.cursor()
 
-    if category:  # If a category is selected, filter the data based on it
-        cursor.execute("SELECT * FROM me_dictionary WHERE category=?", (category,))
-    else:  # If no category is selected, fetch all data
-        cursor.execute("SELECT * FROM me_dictionary")
+    # make the SQL query based on the selected filters
+    query = "SELECT * FROM me_dictionary WHERE 1=1"
+    params = []
 
+    if category:
+        query += " AND LOWER(Category) = ?"
+        params.append(category)
+
+    if level_from and level_to:
+        query += " AND Level BETWEEN ? AND ?"
+        params.extend([level_from, level_to])
+
+    cursor.execute(query, params)
     dictionary_data = cursor.fetchall()
     conn.close()
 
     return render_template('dictionary.html', dictionary_data=dictionary_data)
-
 
 
 if __name__ == '__main__':

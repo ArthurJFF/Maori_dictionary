@@ -6,9 +6,9 @@ Maori-English Dictionary
 
 {% block main %}
 <div class="container">
-    <form action="/dictionary" method="GET">
+    <form action="/dictionary" method="GET"> <!-- Form for filtering dictionary data -->
         <label for="category">Select a category:</label>
-        <select name="category" id="category">
+        <select name="category" id="category"> <!-- Dropdown options for selecting a category -->
             <option value="">All</option>
             <option value="Actions">Actions</option>
             <option value="Animals">Animals</option>
@@ -26,7 +26,34 @@ Maori-English Dictionary
             <option value="Sport">Sport</option>
             <option value="Technology">Technology</option>
             <option value="Time">Time</option>
-            <!-- Add more options as needed -->
+        </select>
+        <label for="level_from">Select starting level:</label> <!-- Dropdown for selecting the ending level -->
+        <select name="level_from" id="level_from">
+            <option value="">Any</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <label for="level_to">Select ending level:</label>
+        <select name="level_to" id="level_to">
+            <option value="">Any</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
         </select>
         <input type="submit" value="Filter">
     </form>
@@ -42,7 +69,7 @@ Maori-English Dictionary
             </tr>
         </thead>
         <tbody>
-            {% for word in dictionary_data %}
+            {% for word in dictionary_data %} <!-- Displaying dictionary data -->
                 <tr>
                     <td>{{ word[1] }}</td>
                     <td>{{ word[2] }}</td>
