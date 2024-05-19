@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block pageheading %}
+Permission Denied
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <p>You do not have permission to access this page.</p>
+    <a href="{{ url_for('render_homepage') }}" class="btn btn-primary">Go Back Home</a>
+</div>
+{% endblock %}
