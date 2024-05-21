@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block pageheading %}
+Word Details
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h2>{{ word[1] }} ({{ word[2] }})</h2>
+    <p><strong>Category:</strong> {{ word[3] }}</p> <!-- displays info about word from table-->
+    <p><strong>Definition:</strong> {{ word[4] }}</p>
+    <p><strong>Level:</strong> {{ word[5] }}</p>
+
+    {% if session.teacher %} <!-- if user is a teacher they get these extra options displayed-->
+        <a href="{{ url_for('edit_word', word_id=word[0]) }}" class="btn btn-primary">Edit</a>
+        <a href="{{ url_for('delete_word', word_id=word[0]) }}" class="btn btn-danger">Delete</a>
+    {% endif %}
+    <a href="{{ url_for('render_dictionary') }}" class="btn btn-secondary">Back to Dictionary</a> <!-- hyperlink back-->
+</div>
+{% endblock %}

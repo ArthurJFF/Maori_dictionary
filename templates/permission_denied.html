@@ -7,6 +7,6 @@ Permission Denied
 {% block main %}
 <div class="container">
     <p>You do not have permission to access this page.</p>
-    <a href="{{ url_for('render_homepage') }}" class="btn btn-primary">Go Back Home</a>
+    <a href="{{ url_for('render_homepage') }}">Return to Home</a> <!-- if a student tries to access teacher page they are sent here, the hyperlink takes them back home-->
 </div>
 {% endblock %}

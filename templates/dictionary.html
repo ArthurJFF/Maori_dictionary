@@ -6,9 +6,9 @@ Maori-English Dictionary
 
 {% block main %}
 <div class="container">
-    <form action="/dictionary" method="GET"> <!-- Form for filtering dictionary data -->
+    <form action="/dictionary" method="GET">  <!-- these and other forms like it present dropdown boxes for filters and give all their options to the user-->
         <label for="category">Select a category:</label>
-        <select name="category" id="category"> <!-- Dropdown options for selecting a category -->
+        <select name="category" id="category">
             <option value="">All</option>
             <option value="Actions">Actions</option>
             <option value="Animals">Animals</option>
@@ -27,7 +27,8 @@ Maori-English Dictionary
             <option value="Technology">Technology</option>
             <option value="Time">Time</option>
         </select>
-        <label for="level_from">Select starting level:</label> <!-- Dropdown for selecting the ending level -->
+
+        <label for="level_from">Select starting level:</label>
         <select name="level_from" id="level_from">
             <option value="">Any</option>
             <option value="1">1</option>
@@ -41,6 +42,7 @@ Maori-English Dictionary
             <option value="9">9</option>
             <option value="10">10</option>
         </select>
+
         <label for="level_to">Select ending level:</label>
         <select name="level_to" id="level_to">
             <option value="">Any</option>
@@ -55,6 +57,14 @@ Maori-English Dictionary
             <option value="9">9</option>
             <option value="10">10</option>
         </select>
+
+        <label for="learned_filter">Learned Status:</label>
+        <select name="learned_filter" id="learned_filter">
+            <option value="">All</option>
+            <option value="learned">Learned</option>
+            <option value="unlearned">Unlearned</option>
+        </select>
+
         <input type="submit" value="Filter">
     </form>
 
@@ -66,19 +76,57 @@ Maori-English Dictionary
                 <th>Category</th>
                 <th>Definition</th>
                 <th>Level</th>
+                <th>Learned</th>
+                {% if session.teacher %}  <!-- the headers of the table are put here and if it is a teacher they get actions as well-->
+                <th>Actions</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
-            {% for word in dictionary_data %} <!-- Displaying dictionary data -->
-                <tr>
-                    <td>{{ word[1] }}</td>
-                    <td>{{ word[2] }}</td>
-                    <td>{{ word[3] }}</td>
-                    <td>{{ word[4] }}</td>
-                    <td>{{ word[5] }}</td>
-                </tr>
+            {% for word in dictionary_data %} <!-- loops for every word in the dictionary-->
+            <tr>
+                <td><a href="{{ url_for('view_word', word_id=word[0]) }}">{{ word[1] }}</a></td>  <!-- creates hyperlink to view word-->
+                <td>{{ word[2] }}</td>
+                <td>{{ word[3] }}</td> <!-- generates each part of the row-->
+                <td>{{ word[4] }}</td>
+                <td>{{ word[5] }}</td>
+                <td>
+                    <input type="checkbox" class="learned-checkbox" data-word-id="{{ word[0] }}" {% if word[6] %}checked{% endif %}> <!-- checkbox for word learnt-->
+                </td>
+                {% if session.teacher %}
+                <td>
+                    <a href="{{ url_for('edit_word', word_id=word[0]) }}">Edit</a>
+                    <a href="{{ url_for('delete_word', word_id=word[0]) }}">Delete</a>
+                </td>
+                {% endif %}
+            </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% if session.teacher %}
+    <a href="{{ url_for('add_word') }}">Add Word</a> <!-- add word option at bottom for teachers-->
+    {% endif %}
 </div>
+
+<script>  // javascript used here because it is far easier to do checkboxes in
+document.querySelectorAll('.learned-checkbox').forEach(function(checkbox) { //selects all checkboxes and listens for event change when checkbox is clicked
+    checkbox.addEventListener('change', function() {
+        var wordId = this.dataset.wordId;
+        var url = this.checked ? '/learn_word' : '/unlearn_word';  //gets the word id of the corresponding checkbox word, then sets to learn or unlearned word
+        fetch(url, {  //fetch request to server, POSTS word
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded' //type of data being sent, form data
+            },
+            body: 'word_id=' + wordId
+        }).then(response => response.json()).then(data => {
+            if (data.status !== 'success') {
+                alert('Something went wrong. Please try again.'); //if something goes wrong we get an alert and checkbox is unchanged
+                this.checked = !this.checked;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
