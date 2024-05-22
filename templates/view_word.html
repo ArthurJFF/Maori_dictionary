@@ -11,6 +11,10 @@ Word Details
     <p><strong>Definition:</strong> {{ word[4] }}</p>
     <p><strong>Level:</strong> {{ word[5] }}</p>
 
+    {% if word[6] %} <!-- Check if there is an image URL -->
+        <img src="{{ url_for('static', filename=word[6]) }}" alt="{{ word[1] }} image" style="max-width: 100%; height: auto;">
+    {% endif %}
+
     {% if session.teacher %} <!-- if user is a teacher they get these extra options displayed-->
         <a href="{{ url_for('edit_word', word_id=word[0]) }}" class="btn btn-primary">Edit</a>
         <a href="{{ url_for('delete_word', word_id=word[0]) }}" class="btn btn-danger">Delete</a>

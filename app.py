@@ -165,12 +165,13 @@ def edit_word(word_id):
         category = request.form.get('category')
         definition = request.form.get('definition')
         level = request.form.get('level')
+        image_url = request.form.get('image_url')
 
         cursor.execute("""
             UPDATE me_dictionary
-            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?
+            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?, image_url = ?
             WHERE id = ?
-        """, (m_word, e_word, category, definition, level, word_id))
+        """, (m_word, e_word, category, definition, level, image_url, word_id))
         # updates the corresponding columns for the selected word id
 
         conn.commit()
@@ -224,11 +225,13 @@ def add_word():
         category = request.form.get('category')
         definition = request.form.get('definition')
         level = request.form.get('level')
+        image_url = request.form.get('image_url')
 
         conn = connect_to_database(DICTIONARY_DB)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO me_dictionary (M_word, E_word, Category, Definition, Level) VALUES (?, ?, ?, ?, ?)",
-                       (m_word, e_word, category, definition, level))
+        cursor.execute("INSERT INTO me_dictionary (M_word, E_word, Category, Definition, Level, image_url) "
+                       "VALUES (?, ?, ?, ?, ?, ?)",
+                       (m_word, e_word, category, definition, level, image_url))
         # get the data from the form then insert them into the right row of me_dictionary
         conn.commit()
         conn.close()
