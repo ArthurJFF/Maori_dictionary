@@ -20,10 +20,9 @@
         <div class="navbar-links">
             <a href="/">Home</a>
             <a href="/dictionary">Dictionary</a>
-            <a href="/add_word">Add words</a>
-            <a href="/contact">Contact</a>
+            <a href="/teacher_dashboard">Teacher Dashboard</a>
             {% if 'email' in session %}
-                <div class="navbar-user">Logged in as: {{ session.get('name') }}</div>
+                <div class="navbar-user">Logged in as: {{ session.get('firstname') }}</div>
                 <a href="/logout">Logout</a>
             {% else %}
                 <a href="/login">Login</a>
@@ -32,6 +31,15 @@
         </div>
     </div>
 </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flashes">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 <div class="container">
     <header>
         <h1>Maori Dictionary</h1>  <!-- page heading -->

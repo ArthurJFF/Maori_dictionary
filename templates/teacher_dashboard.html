@@ -1,0 +1,10 @@
+<!-- teacher_dashboard.html -->
+{% extends "base.html" %}
+
+{% block main %}
+    <h1>Teacher Dashboard</h1>
+    <ul>
+        <li><a href="{{ url_for('render_teacher_signup_page') }}">Teacher Signup</a></li>
+        <li><a href="{{ url_for('add_word') }}">Add Words</a></li>
+    </ul>
+{% endblock %}

@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, flash
 import sqlite3
-from sqlite3 import Error
+import bcrypt
+from datetime import datetime
 
+from sqlite3 import Error
+from bcrypt import hashpw, gensalt, checkpw
 app = Flask(__name__)
 app.secret_key = 'my_secret_key'
 DICTIONARY_DB = 'dictionary.sqlite'  # Set up secret key and database connection
@@ -23,41 +26,42 @@ def render_homepage():
 
 
 @app.route('/login', methods=['POST', 'GET'])
-def render_login():
-    if 'email' in session:
-        user_name = session.get('name')
-        if user_name:  # Check if user_name is not None
-            error_message = f"You are already logged in as {user_name}."
-            return render_template('login.html', error=error_message)
+def render_login_page():  # Login page
+    if request.method == 'POST':  # If the user submits the login form
+        email = request.form.get('email')  # Get the email entered by the user
+        password = request.form.get('user_password')  # Get the password entered by the user
 
-    if request.method == 'POST':  # gets email and password from table
-        email = request.form.get('email')
-        password = request.form.get('user_password')
+        con = connect_to_database(DICTIONARY_DB)  # Connect to the database
+        cur = con.cursor()
+        cur.execute("SELECT user_id, password, fname, lname, teacher FROM user_info WHERE email = ?", (email,))  # Retrieve user data
+        result = cur.fetchone()  # Fetch the first result
+        con.close()
 
-        conn = connect_to_database(DICTIONARY_DB)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user_info WHERE email=? AND password=?", (email, password))
-        # check user with required credentials exists
-        user = cursor.fetchone()
-        conn.close()
+        if result:
+            stored_hashed_password = result[1].encode('utf-8')  # Convert the stored hashed password back to bytes
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):  # Verify the password
+                session['email'] = email
+                session['firstname'] = result[2]
+                session['lastname'] = result[3]
+                session['user_id'] = result[0]  # Set the user_id in the session
+                session['teacher'] = result[4]  # Set the teacher status in the session
 
-        if user:
-            session['email'] = email  # set variables for session that are used to personalise the user experience
-            session['user_id'] = user[0]
-            session['name'] = user[3]
-            session['teacher'] = bool(user[5])
-            return redirect(url_for('render_homepage'))
+                return redirect(url_for('render_homepage'))  # Redirect to home if login is successful
+            else:
+                error_message = "Incorrect password. Please try again."
         else:
-            error_message = "Invalid email or password. Please try again."  # error message if login fails
-            return render_template('login.html', error=error_message)
+            error_message = "Email not found. Please try again."
 
-    return render_template('login.html')
+        return render_template('login.html', error=error_message)  # Render the login page with error message
+
+    return render_template('login.html')  # Render the login page
+
 
 
 @app.route('/logout')
 def render_logout():
     session.clear()
-    return redirect(url_for('render_login'))  # Redirect to login page after logout
+    return redirect(url_for('render_login_page'))  # Redirect to login page after logout
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -67,22 +71,67 @@ def render_signup_page():  # Signup page
         password = request.form.get('user_password')
         verify_password = request.form.get('user_password_verify')
         firstname = request.form.get('firstname')
-        lastname = request.form.get('lastname')  # Add to the table
+        lastname = request.form.get('lastname')
 
         if password != verify_password:  # Verify passwords
             error_message = "Passwords do not match. Please try again."
             return render_template('signup.html', error=error_message)
 
+        # Hash the password before storing it
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
         con = connect_to_database(DICTIONARY_DB)  # Connect to database
         cur = con.cursor()
-        cur.execute("INSERT INTO user_info (email, password, fname, lname) VALUES (?, ?, ?, ?)",
-                    (email, password, firstname, lastname))  # Insert info into table
+        cur.execute("INSERT INTO user_info (email, password, fname, lname, teacher) VALUES (?, ?, ?, ?, ?)",
+                    (email, hashed_password, firstname, lastname))  # Insert info into table
         con.commit()
         con.close()
 
         return redirect('/')
 
     return render_template('signup.html')
+
+@app.route('/teacher_signup', methods=['POST', 'GET'])
+def render_teacher_signup_page():  # Teacher signup page
+    # Check if the user is a teacher
+    if 'email' in session and session.get('teacher'):
+        if request.method == 'POST':
+            # Handle form submission for teacher signup
+            email = request.form.get('email')
+            password = request.form.get('user_password')
+            verify_password = request.form.get('user_password_verify')
+            firstname = request.form.get('firstname')
+            lastname = request.form.get('lastname')
+            is_teacher = True  # Set the user as a teacher
+
+            if password != verify_password:
+                error_message = "Passwords do not match. Please try again."
+                return render_template('teacher_signup.html', error=error_message)
+
+            # Hash the password before storing it
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+            con = connect_to_database(DICTIONARY_DB)
+            cur = con.cursor()
+            cur.execute("INSERT INTO user_info (email, password, fname, lname, teacher) VALUES (?, ?, ?, ?, ?)",
+                        (email, hashed_password, firstname, lastname, is_teacher))
+            con.commit()
+            con.close()
+
+            return redirect('/')  # Redirect to homepage after signup
+
+        return render_template('teacher_signup.html')  # Render the teacher signup page
+
+    else:
+        return redirect(url_for('permission_denied'))  # Redirect unauthorized users
+
+# Check if the user is a teacher to render the teacher dashboard
+@app.route('/teacher_dashboard')
+def render_teacher_dashboard():
+    if 'email' in session and session.get('teacher'):
+        return render_template('teacher_dashboard.html')
+    else:
+        return redirect(url_for('permission_denied'))  # Redirect unauthorized users
 
 
 @app.route('/dictionary', methods=['GET'])
@@ -132,7 +181,7 @@ def render_dictionary():
     return render_template('dictionary.html', dictionary_data=dictionary_data)
 
 
-@app.route('/view_word/<int:word_id>', methods=['GET'])  # route for viewing details of individual word once clicked
+@app.route('/view_word/<int:word_id>', methods=['GET'])
 def view_word(word_id):
     if 'email' not in session:
         return redirect('/login')  # Redirect to login if user is not logged in
@@ -140,15 +189,41 @@ def view_word(word_id):
     conn = connect_to_database(DICTIONARY_DB)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM me_dictionary WHERE id = ?", (word_id,))
-    # query to get data from row with the corresponding word id
     word = cursor.fetchone()
+
+    teacher_name = None
+
+    # Fetch teacher name from user_info table using teacher_id
+    if word[9]:
+        cursor.execute("SELECT fname, lname FROM user_info WHERE user_id = ?", (word[9],))
+        teacher_data = cursor.fetchone()
+
+        if teacher_data:
+            teacher_name = f"{teacher_data[0]} {teacher_data[1]}"
+
     conn.close()
 
-    return render_template('view_word.html', word=word)
+    date_added = None
+    date_modified = None
+
+    # Parse date added
+    if word[7]:
+        try:
+            date_added = datetime.strptime(word[7][:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+        except ValueError:
+            flash('Error parsing date added.')
+
+    # Parse date modified
+    if word[8]:
+        try:
+            date_modified = datetime.strptime(word[8][:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+        except ValueError:
+            flash('Error parsing date modified.')
+
+    return render_template('view_word.html', word=word, teacher_name=teacher_name, date_added=date_added, date_modified=date_modified)
 
 
 @app.route('/edit_word/<int:word_id>', methods=['GET', 'POST'])
-# this allows the teacher to edit existing words in the dictionary
 def edit_word(word_id):
     if 'email' not in session:
         return redirect('/login')  # Redirect to login if user is not logged in
@@ -166,12 +241,23 @@ def edit_word(word_id):
         definition = request.form.get('definition')
         level = request.form.get('level')
         image_url = request.form.get('image_url')
+        teacher_id = session.get('user_id')  # Get the logged-in teacher's ID
+
+        # Validate level input is in the correct bounds
+        try:
+            level = int(level)
+            if level < 1 or level > 10:
+                flash('Invalid level. Please enter a number between 1 and 10.')
+                return redirect(url_for('edit_word', word_id=word_id))
+        except ValueError:
+            flash('Invalid level. Please enter a valid number.')
+            return redirect(url_for('edit_word', word_id=word_id))
 
         cursor.execute("""
             UPDATE me_dictionary
-            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?, image_url = ?
+            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?, image_url = ?, date_modified = ?, teacher_id = ?
             WHERE id = ?
-        """, (m_word, e_word, category, definition, level, image_url, word_id))
+        """, (m_word, e_word, category, definition, level, image_url, datetime.now(), teacher_id, word_id))
         # updates the corresponding columns for the selected word id
 
         conn.commit()
@@ -184,6 +270,8 @@ def edit_word(word_id):
     conn.close()
 
     return render_template('edit_word_form.html', word=word)
+
+
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
@@ -226,13 +314,24 @@ def add_word():
         definition = request.form.get('definition')
         level = request.form.get('level')
         image_url = request.form.get('image_url')
+        teacher_id = session.get('user_id')  # Get the logged-in teacher's ID
+
+        # Validate level input is in the right bounds
+        try:
+            level = int(level)
+            if level < 1 or level > 10:
+                flash('Invalid level. Please enter a number between 1 and 10.')
+                return redirect(url_for('add_word'))
+        except ValueError:
+            flash('Invalid level. Please enter a valid number.')
+            return redirect(url_for('add_word'))
 
         conn = connect_to_database(DICTIONARY_DB)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO me_dictionary (M_word, E_word, Category, Definition, Level, image_url) "
-                       "VALUES (?, ?, ?, ?, ?, ?)",
-                       (m_word, e_word, category, definition, level, image_url))
-        # get the data from the form then insert them into the right row of me_dictionary
+        cursor.execute("""
+            INSERT INTO me_dictionary (M_word, E_word, Category, Definition, Level, image_url, date_added, teacher_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (m_word, e_word, category, definition, level, image_url, datetime.now(), teacher_id))
         conn.commit()
         conn.close()
 

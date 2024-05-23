@@ -1,0 +1,42 @@
+<!-- teacher_signup.html -->
+{% extends "base.html" %}
+
+{% block main %}
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+    <form class="myform" method="post" action="/teacher_signup">  <!-- Exact same as regular signup except automatically makes user a teacher-->
+        <div class="form-group">
+            <div class="form-label">Email</div>
+            <div class="form-element"><input type="email" name="email" id="email" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Password</div>
+            <div class="form-element"><input type="password" name="user_password" id="user_password" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Verify Password</div>
+            <div class="form-element"><input type="password" name="user_password_verify" id="user_password_verify" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">First Name</div>
+            <div class="form-element"><input type="text" name="firstname" id="firstname" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Last Name</div>
+            <div class="form-element"><input type="text" name="lastname" id="lastname" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Teacher</div>
+            <div class="form-element"><input type="checkbox" name="teacher" id="teacher" checked readonly></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Reset</div>
+            <div class="form-element"><input type="reset" value="Reset" required></div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Submit</div>
+            <div class="form-element"><input type="submit" value="Submit" required></div>
+        </div>
+    </form>
+{% endblock %}

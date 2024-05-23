@@ -7,18 +7,24 @@ Word Details
 {% block main %}
 <div class="container">
     <h2>{{ word[1] }} ({{ word[2] }})</h2>
-    <p><strong>Category:</strong> {{ word[3] }}</p> <!-- displays info about word from table-->
+    <p><strong>Category:</strong> {{ word[3] }}</p>
     <p><strong>Definition:</strong> {{ word[4] }}</p>
     <p><strong>Level:</strong> {{ word[5] }}</p>
+    <p><strong>Date Added:</strong> {{ date_added }}</p>
+    <p><strong>Date Modified:</strong> {{ date_modified }}</p>
 
-    {% if word[6] %} <!-- Check if there is an image URL -->
+    {% if teacher_name %}
+        <p><strong>Added/Modified by:</strong> {{ teacher_name }}</p>
+    {% endif %}
+
+    {% if word[6] %}
         <img src="{{ url_for('static', filename=word[6]) }}" alt="{{ word[1] }} image" style="max-width: 100%; height: auto;">
     {% endif %}
 
-    {% if session.teacher %} <!-- if user is a teacher they get these extra options displayed-->
+    {% if session.teacher %}
         <a href="{{ url_for('edit_word', word_id=word[0]) }}" class="btn btn-primary">Edit</a>
         <a href="{{ url_for('delete_word', word_id=word[0]) }}" class="btn btn-danger">Delete</a>
     {% endif %}
-    <a href="{{ url_for('render_dictionary') }}" class="btn btn-secondary">Back to Dictionary</a> <!-- hyperlink back-->
+    <a href="{{ url_for('render_dictionary') }}" class="btn btn-secondary">Back to Dictionary</a>
 </div>
 {% endblock %}

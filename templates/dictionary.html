@@ -5,6 +5,7 @@ Maori-English Dictionary
 {% endblock %}
 
 {% block main %}
+Click the Maori word for more information
 <div class="container">
     <form action="/dictionary" method="GET">  <!-- these and other forms like it present dropdown boxes for filters and give all their options to the user-->
         <label for="category">Select a category:</label>
@@ -28,7 +29,7 @@ Maori-English Dictionary
             <option value="Time">Time</option>
         </select>
 
-        <label for="level_from">Select starting level:</label>
+        <label for="level_from">Select level min:</label>
         <select name="level_from" id="level_from">
             <option value="">Any</option>
             <option value="1">1</option>
@@ -43,7 +44,7 @@ Maori-English Dictionary
             <option value="10">10</option>
         </select>
 
-        <label for="level_to">Select ending level:</label>
+        <label for="level_to"> level max:</label>
         <select name="level_to" id="level_to">
             <option value="">Any</option>
             <option value="1">1</option>

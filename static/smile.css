@@ -193,6 +193,20 @@ table {
     font-weight: bold;
 }
 
+table tbody tr {
+    padding: 70px 0;
+}
+
+
+table tbody tr {
+    margin-bottom: 70px;
+}
+
+
+table tbody tr {
+    border-bottom: 2px solid #ddd;
+}
+
 
 @media only screen and (max-width: 600px) {
     .container {
