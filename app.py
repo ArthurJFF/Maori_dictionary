@@ -33,7 +33,8 @@ def render_login_page():  # Login page
 
         con = connect_to_database(DICTIONARY_DB)  # Connect to the database
         cur = con.cursor()
-        cur.execute("SELECT user_id, password, fname, lname, teacher FROM user_info WHERE email = ?", (email,))  # Retrieve user data
+        # Retrieve user data
+        cur.execute("SELECT user_id, password, fname, lname, teacher FROM user_info WHERE email = ?", (email,))
         result = cur.fetchone()  # Fetch the first result
         con.close()
 
@@ -55,7 +56,6 @@ def render_login_page():  # Login page
         return render_template('login.html', error=error_message)  # Render the login page with error message
 
     return render_template('login.html')  # Render the login page
-
 
 
 @app.route('/logout')
@@ -90,6 +90,7 @@ def render_signup_page():  # Signup page
         return redirect('/')
 
     return render_template('signup.html')
+
 
 @app.route('/teacher_signup', methods=['POST', 'GET'])
 def render_teacher_signup_page():  # Teacher signup page
@@ -126,6 +127,8 @@ def render_teacher_signup_page():  # Teacher signup page
         return redirect(url_for('permission_denied'))  # Redirect unauthorized users
 
 # Check if the user is a teacher to render the teacher dashboard
+
+
 @app.route('/teacher_dashboard')
 def render_teacher_dashboard():
     if 'email' in session and session.get('teacher'):
@@ -220,7 +223,8 @@ def view_word(word_id):
         except ValueError:
             flash('Error parsing date modified.')
 
-    return render_template('view_word.html', word=word, teacher_name=teacher_name, date_added=date_added, date_modified=date_modified)
+    return render_template('view_word.html', word=word, teacher_name=teacher_name,
+                           date_added=date_added, date_modified=date_modified)
 
 
 @app.route('/edit_word/<int:word_id>', methods=['GET', 'POST'])
@@ -255,7 +259,8 @@ def edit_word(word_id):
 
         cursor.execute("""
             UPDATE me_dictionary
-            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?, image_url = ?, date_modified = ?, teacher_id = ?
+            SET M_word = ?, E_word = ?, Category = ?, Definition = ?, Level = ?, image_url = ?, 
+            date_modified = ?, teacher_id = ?
             WHERE id = ?
         """, (m_word, e_word, category, definition, level, image_url, datetime.now(), teacher_id, word_id))
         # updates the corresponding columns for the selected word id
@@ -270,8 +275,6 @@ def edit_word(word_id):
     conn.close()
 
     return render_template('edit_word_form.html', word=word)
-
-
 
 
 @app.route('/delete_word/<int:word_id>', methods=['GET', 'POST'])
