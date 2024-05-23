@@ -82,7 +82,7 @@ def render_signup_page():  # Signup page
 
         con = connect_to_database(DICTIONARY_DB)  # Connect to database
         cur = con.cursor()
-        cur.execute("INSERT INTO user_info (email, password, fname, lname, teacher) VALUES (?, ?, ?, ?, ?)",
+        cur.execute("INSERT INTO user_info (email, password, fname, lname, teacher) VALUES (?, ?, ?, ?)",
                     (email, hashed_password, firstname, lastname))  # Insert info into table
         con.commit()
         con.close()
